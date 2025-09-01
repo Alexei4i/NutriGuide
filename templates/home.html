@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Home - NutriGuide{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Header -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="welcome-header">
+                <div class="d-flex align-items-center mb-3">
+                    {% if current_user.profile_image_url %}
+                        <img src="{{ current_user.profile_image_url }}" alt="Profile" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                    {% endif %}
+                    <div>
+                        <h2 class="mb-1">Welcome back, {{ current_user.first_name or 'there' }}! 👋</h2>
+                        <p class="text-muted mb-0">Ready to discover your next perfect meal?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h4 class="mb-3">Quick Actions</h4>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="{{ url_for('recommendations') }}" class="card border-0 shadow-sm h-100 text-decoration-none quick-action-card">
+                <div class="card-body text-center p-4">
+                    <div class="quick-action-icon mb-3">
+                        <i class="fas fa-magic text-primary" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Get Recommendations</h5>
+                    <p class="text-muted">Discover new meals tailored for you</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="{{ url_for('profile') }}" class="card border-0 shadow-sm h-100 text-decoration-none quick-action-card">
+                <div class="card-body text-center p-4">
+                    <div class="quick-action-icon mb-3">
+                        <i class="fas fa-user-cog text-success" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Update Profile</h5>
+                    <p class="text-muted">Refine your preferences & allergies</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 quick-action-card premium-preview">
+                <div class="card-body text-center p-4">
+                    <div class="quick-action-icon mb-3">
+                        <i class="fas fa-chart-line text-warning" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">
+                        Track Progress
+                        <span class="badge bg-warning text-dark ms-1">Premium</span>
+                    </h5>
+                    <p class="text-muted">Monitor your nutrition journey</p>
+                </div>
+                <div class="card-overlay">
+                    <span class="coming-soon">Coming Soon</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Meals -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history text-primary me-2"></i>Your Recent Meals
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_meals %}
+                        <div class="row g-3">
+                            {% for history, meal in recent_meals %}
+                                <div class="col-md-6">
+                                    <div class="recent-meal-card">
+                                        <div class="row g-0">
+                                            <div class="col-4">
+                                                <img src="{{ meal.image_url or 'https://via.placeholder.com/150x100?text=Meal' }}" 
+                                                     alt="{{ meal.name }}" class="img-fluid rounded-start h-100" style="object-fit: cover;">
+                                            </div>
+                                            <div class="col-8">
+                                                <div class="card-body p-3">
+                                                    <h6 class="card-title mb-1">{{ meal.name }}</h6>
+                                                    <div class="meal-info small text-muted">
+                                                        <div><i class="fas fa-fire me-1"></i>{{ meal.calories }} cal</div>
+                                                        <div><i class="fas fa-clock me-1"></i>{{ meal.prep_time or 'N/A' }} min</div>
+                                                    </div>
+                                                    {% if history.rating %}
+                                                        <div class="mt-2">
+                                                            {% for i in range(1, 6) %}
+                                                                <i class="fas fa-star {{ 'text-warning' if i <= history.rating else 'text-muted' }}"></i>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-plate-wheat text-muted mb-3" style="font-size: 3rem;"></i>
+                            <h6 class="text-muted">No meals discovered yet</h6>
+                            <p class="text-muted mb-3">Get your first personalized recommendations!</p>
+                            <a href="{{ url_for('recommendations') }}" class="btn btn-primary">
+                                <i class="fas fa-magic me-2"></i>Discover Meals
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Tips & Info -->
+        <div class="col-lg-4">
+            <!-- Health Tip -->
+            {% if health_tip %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white border-0">
+                        <h6 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>Daily Health Tip
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="fw-bold">{{ health_tip.title }}</h6>
+                        <p class="text-muted small mb-0">{{ health_tip.content }}</p>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Profile Status -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 pb-0">
+                    <h6 class="mb-0">
+                        <i class="fas fa-user text-success me-2"></i>Profile Status
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="profile-completeness mb-3">
+                        {% set completeness = 0 %}
+                        {% if current_user.age %}{% set completeness = completeness + 20 %}{% endif %}
+                        {% if current_user.weight %}{% set completeness = completeness + 20 %}{% endif %}
+                        {% if current_user.height %}{% set completeness = completeness + 20 %}{% endif %}
+                        {% if current_user.gender %}{% set completeness = completeness + 20 %}{% endif %}
+                        {% if current_user.dietary_preferences %}{% set completeness = completeness + 20 %}{% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-bold">Completeness</span>
+                            <span class="small">{{ completeness }}%</span>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ completeness }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-checks">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-{{ 'check-circle text-success' if current_user.age else 'circle text-muted' }} me-2"></i>
+                            <span class="small">Age & Demographics</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-{{ 'check-circle text-success' if current_user.dietary_preferences else 'circle text-muted' }} me-2"></i>
+                            <span class="small">Dietary Preferences</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-{{ 'check-circle text-success' if current_user.allergies else 'circle text-muted' }} me-2"></i>
+                            <span class="small">Allergies & Restrictions</span>
+                        </div>
+                    </div>
+                    
+                    {% if completeness < 100 %}
+                        <a href="{{ url_for('profile') }}" class="btn btn-sm btn-outline-success w-100 mt-3">
+                            <i class="fas fa-edit me-1"></i>Complete Profile
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Premium Features Preview -->
+            <div class="card border-0 shadow-sm premium-card">
+                <div class="card-body text-center">
+                    <div class="premium-icon mb-3">
+                        <i class="fas fa-crown text-warning" style="font-size: 2rem;"></i>
+                    </div>
+                    <h6 class="fw-bold">Unlock Premium Features</h6>
+                    <ul class="list-unstyled text-start small text-muted mb-3">
+                        <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Advanced nutrition tracking</li>
+                        <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Meal planning calendar</li>
+                        <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Shopping list generator</li>
+                        <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Custom recipe uploads</li>
+                    </ul>
+                    <button class="btn btn-warning btn-sm w-100" disabled>
+                        <i class="fas fa-lock me-1"></i>Coming Soon
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate quick action cards on hover
+        document.querySelectorAll('.quick-action-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Add loading animation to recommendation button
+        const recButton = document.querySelector('a[href="{{ url_for("recommendations") }}"]');
+        if (recButton) {
+            recButton.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-spinner fa-spin me-2';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - NutriGuide{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Profile Header -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex align-items-center">
+                        {% if current_user.profile_image_url %}
+                            <img src="{{ current_user.profile_image_url }}" alt="Profile" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-user text-muted"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="mb-0">{{ current_user.first_name or 'User' }} {{ current_user.last_name or '' }}</h5>
+                            <small class="opacity-75">{{ current_user.email or 'No email provided' }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Form -->
+            <form method="POST" class="needs-validation" novalidate>
+                <!-- Basic Information -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-user-circle text-primary me-2"></i>Basic Information
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="age" class="form-label">Age *</label>
+                                <input type="number" class="form-control" id="age" name="age" 
+                                       value="{{ current_user.age or '' }}" min="13" max="120" required>
+                                <div class="invalid-feedback">Please provide a valid age.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="weight" class="form-label">Weight (kg) *</label>
+                                <input type="number" class="form-control" id="weight" name="weight" 
+                                       value="{{ current_user.weight or '' }}" min="30" max="300" step="0.1" required>
+                                <div class="invalid-feedback">Please provide a valid weight.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="height" class="form-label">Height (cm) *</label>
+                                <input type="number" class="form-control" id="height" name="height" 
+                                       value="{{ (current_user.height * 100) | round | int if current_user.height else '' }}" 
+                                       min="100" max="250" required>
+                                <div class="invalid-feedback">Please provide a valid height.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select class="form-select" id="gender" name="gender">
+                                    <option value="">Select gender</option>
+                                    <option value="male" {{ 'selected' if current_user.gender == 'male' else '' }}>Male</option>
+                                    <option value="female" {{ 'selected' if current_user.gender == 'female' else '' }}>Female</option>
+                                    <option value="other" {{ 'selected' if current_user.gender == 'other' else '' }}>Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="activity_level" class="form-label">Activity Level</label>
+                                <select class="form-select" id="activity_level" name="activity_level">
+                                    <option value="">Select activity level</option>
+                                    <option value="sedentary" {{ 'selected' if current_user.activity_level == 'sedentary' else '' }}>Sedentary (little to no exercise)</option>
+                                    <option value="light" {{ 'selected' if current_user.activity_level == 'light' else '' }}>Light (light exercise 1-3 days/week)</option>
+                                    <option value="moderate" {{ 'selected' if current_user.activity_level == 'moderate' else '' }}>Moderate (moderate exercise 3-5 days/week)</option>
+                                    <option value="active" {{ 'selected' if current_user.activity_level == 'active' else '' }}>Active (hard exercise 6-7 days/week)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Health Goals -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-target text-success me-2"></i>Health Goals
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="health_goals" class="form-label">Primary Health Goal</label>
+                                <select class="form-select" id="health_goals" name="health_goals">
+                                    <option value="">Select your primary goal</option>
+                                    <option value="weight_loss" {{ 'selected' if current_user.health_goals == 'weight_loss' else '' }}>Weight Loss</option>
+                                    <option value="weight_gain" {{ 'selected' if current_user.health_goals == 'weight_gain' else '' }}>Weight Gain</option>
+                                    <option value="muscle_gain" {{ 'selected' if current_user.health_goals == 'muscle_gain' else '' }}>Muscle Gain</option>
+                                    <option value="maintenance" {{ 'selected' if current_user.health_goals == 'maintenance' else '' }}>Maintain Current Weight</option>
+                                    <option value="heart_health" {{ 'selected' if current_user.health_goals == 'heart_health' else '' }}>Heart Health</option>
+                                    <option value="diabetes_management" {{ 'selected' if current_user.health_goals == 'diabetes_management' else '' }}>Diabetes Management</option>
+                                    <option value="general_health" {{ 'selected' if current_user.health_goals == 'general_health' else '' }}>General Health</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dietary Preferences -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-leaf text-success me-2"></i>Dietary Preferences
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Select all that apply to you:</label>
+                                <div class="row">
+                                    {% set preferences_options = [
+                                        ('vegetarian', 'Vegetarian'),
+                                        ('vegan', 'Vegan'),
+                                        ('pescatarian', 'Pescatarian'),
+                                        ('keto', 'Ketogenic'),
+                                        ('paleo', 'Paleo'),
+                                        ('mediterranean', 'Mediterranean'),
+                                        ('low_carb', 'Low Carb'),
+                                        ('low_fat', 'Low Fat'),
+                                        ('high_protein', 'High Protein'),
+                                        ('gluten_free', 'Gluten-Free'),
+                                        ('dairy_free', 'Dairy-Free'),
+                                        ('low_sodium', 'Low Sodium')
+                                    ] %}
+                                    
+                                    {% for value, label in preferences_options %}
+                                        <div class="col-md-4 col-sm-6 mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="dietary_preferences" 
+                                                       value="{{ value }}" id="pref_{{ value }}"
+                                                       {{ 'checked' if value in dietary_preferences else '' }}>
+                                                <label class="form-check-label" for="pref_{{ value }}">
+                                                    {{ label }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Allergies & Restrictions -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>Allergies & Food Restrictions
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="allergies" class="form-label">Allergies and foods to avoid</label>
+                                <textarea class="form-control" id="allergies" name="allergies" rows="3" 
+                                          placeholder="Enter allergies separated by commas (e.g., nuts, shellfish, eggs)">{{ ', '.join(allergies_list) if allergies_list else '' }}</textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle text-info me-1"></i>
+                                    List any foods you're allergic to or want to avoid. This helps us filter out unsuitable meals.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Common Allergies Quick Selection -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <label class="form-label small">Common allergies (click to add):</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% set common_allergies = ['nuts', 'peanuts', 'shellfish', 'fish', 'eggs', 'dairy', 'soy', 'wheat', 'gluten', 'sesame'] %}
+                                    {% for allergy in common_allergies %}
+                                        <button type="button" class="btn btn-sm btn-outline-warning allergy-tag" data-allergy="{{ allergy }}">
+                                            {{ allergy.title() }}
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BMI Calculator Display -->
+                <div class="card border-0 shadow-sm mb-4" id="bmi-card" style="display: none;">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-calculator text-info me-2"></i>BMI Information
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <div class="bmi-value display-6 fw-bold text-primary" id="bmi-value">--</div>
+                                    <small class="text-muted">BMI</small>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="bmi-category" id="bmi-category">
+                                    <span class="badge bg-secondary">Calculate your BMI</span>
+                                </div>
+                                <div class="bmi-description text-muted small mt-2" id="bmi-description">
+                                    Enter your height and weight to see your BMI category.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>Update Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // BMI Calculator
+        function calculateBMI() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const heightCm = parseFloat(document.getElementById('height').value);
+            
+            if (weight && heightCm) {
+                const heightM = heightCm / 100;
+                const bmi = weight / (heightM * heightM);
+                
+                document.getElementById('bmi-value').textContent = bmi.toFixed(1);
+                document.getElementById('bmi-card').style.display = 'block';
+                
+                let category, categoryClass, description;
+                
+                if (bmi < 18.5) {
+                    category = 'Underweight';
+                    categoryClass = 'bg-info';
+                    description = 'Consider consulting with a healthcare provider about healthy weight gain strategies.';
+                } else if (bmi < 25) {
+                    category = 'Normal Weight';
+                    categoryClass = 'bg-success';
+                    description = 'Great! You\'re in the healthy weight range. Focus on maintaining your current weight.';
+                } else if (bmi < 30) {
+                    category = 'Overweight';
+                    categoryClass = 'bg-warning';
+                    description = 'Consider incorporating more exercise and balanced nutrition into your routine.';
+                } else {
+                    category = 'Obese';
+                    categoryClass = 'bg-danger';
+                    description = 'Consider consulting with a healthcare provider about weight management strategies.';
+                }
+                
+                document.getElementById('bmi-category').innerHTML = `<span class="badge ${categoryClass}">${category}</span>`;
+                document.getElementById('bmi-description').textContent = description;
+            } else {
+                document.getElementById('bmi-card').style.display = 'none';
+            }
+        }
+        
+        // Add event listeners for BMI calculation
+        document.getElementById('weight').addEventListener('input', calculateBMI);
+        document.getElementById('height').addEventListener('input', calculateBMI);
+        
+        // Calculate BMI on page load if values exist
+        calculateBMI();
+        
+        // Allergy tag functionality
+        document.querySelectorAll('.allergy-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                const allergy = this.dataset.allergy;
+                const allergiesField = document.getElementById('allergies');
+                const currentAllergies = allergiesField.value.toLowerCase().split(',').map(a => a.trim()).filter(a => a);
+                
+                if (!currentAllergies.includes(allergy)) {
+                    if (allergiesField.value.trim()) {
+                        allergiesField.value += ', ' + allergy;
+                    } else {
+                        allergiesField.value = allergy;
+                    }
+                    this.classList.remove('btn-outline-warning');
+                    this.classList.add('btn-warning');
+                }
+            });
+            
+            // Check if allergy is already in the field
+            const allergiesField = document.getElementById('allergies');
+            const currentAllergies = allergiesField.value.toLowerCase().split(',').map(a => a.trim()).filter(a => a);
+            if (currentAllergies.includes(tag.dataset.allergy)) {
+                tag.classList.remove('btn-outline-warning');
+                tag.classList.add('btn-warning');
+            }
+        });
+        
+        // Form validation
+        const form = document.querySelector('.needs-validation');
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            } else {
+                // Show loading state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+                submitBtn.disabled = true;
+                
+                // Re-enable after a delay (in case of redirect)
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }, 3000);
+            }
+            
+            form.classList.add('was-validated');
+        }, false);
+        
+        // Convert height from meters to centimeters for display
+        const heightInput = document.getElementById('height');
+        if (heightInput.value && parseFloat(heightInput.value) < 10) {
+            // Likely in meters, convert to centimeters
+            heightInput.value = Math.round(parseFloat(heightInput.value) * 100);
+        }
+        
+        // Convert height from centimeters to meters before submission
+        form.addEventListener('submit', function() {
+            const heightValue = parseFloat(heightInput.value);
+            if (heightValue > 10) {
+                // Convert from centimeters to meters for storage
+                const hiddenHeightInput = document.createElement('input');
+                hiddenHeightInput.type = 'hidden';
+                hiddenHeightInput.name = 'height';
+                hiddenHeightInput.value = (heightValue / 100).toFixed(2);
+                form.appendChild(hiddenHeightInput);
+                
+                // Remove the original height input from submission
+                heightInput.removeAttribute('name');
+            }
+        });
+    });
+</script>
+{% endblock %}

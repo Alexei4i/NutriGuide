@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Error - NutriGuide</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="d-flex align-items-center justify-content-center min-vh-100 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body text-center p-5">
+                        <div class="error-icon mb-4">
+                            <i class="fas fa-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
+                        </div>
+                        <h2 class="text-danger mb-3">Authentication Error</h2>
+                        <p class="text-muted mb-4">
+                            There was a problem with authentication. This could be due to:
+                        </p>
+                        <ul class="list-unstyled text-start mb-4">
+                            <li class="mb-2"><i class="fas fa-circle-dot text-primary me-2"></i> Network connectivity issues</li>
+                            <li class="mb-2"><i class="fas fa-circle-dot text-primary me-2"></i> Expired authentication session</li>
+                            <li class="mb-2"><i class="fas fa-circle-dot text-primary me-2"></i> Server configuration problem</li>
+                        </ul>
+                        <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-home me-2"></i>Return Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

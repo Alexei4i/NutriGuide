@@ -1,0 +1,491 @@
+{% extends "base.html" %}
+
+{% block title %}Meal Recommendations - NutriGuide{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h2 class="fw-bold mb-3">
+                <i class="fas fa-magic text-primary me-2"></i>Your Personalized Recommendations
+            </h2>
+            <p class="text-muted">Discover meals tailored specifically for your preferences and nutritional needs</p>
+        </div>
+    </div>
+
+    <!-- Get Recommendations Button -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <button id="getRecommendations" class="btn btn-primary btn-lg px-5">
+                <i class="fas fa-wand-magic me-2"></i>Get My Recommendations
+            </button>
+            <p class="text-muted mt-2 small">Based on your profile: age, weight, preferences, and dietary restrictions</p>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="text-center py-5" style="display: none;">
+        <div class="loading-spinner mb-3">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <h5 class="text-primary">Finding Your Perfect Meals...</h5>
+        <p class="text-muted">Analyzing your preferences and dietary needs</p>
+        
+        <!-- Loading Steps -->
+        <div class="loading-steps mt-4">
+            <div class="loading-step" id="step1">
+                <i class="fas fa-user-check text-success me-2"></i>Analyzing your profile
+            </div>
+            <div class="loading-step" id="step2">
+                <i class="fas fa-filter text-muted me-2"></i>Filtering suitable meals
+            </div>
+            <div class="loading-step" id="step3">
+                <i class="fas fa-heart text-muted me-2"></i>Personalizing recommendations
+            </div>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="alert alert-danger" role="alert" style="display: none;">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle me-3" style="font-size: 1.5rem;"></i>
+            <div>
+                <h6 class="alert-heading mb-1">Oops! Something went wrong</h6>
+                <p class="mb-0" id="errorMessage">We couldn't fetch your recommendations. Please try again.</p>
+            </div>
+        </div>
+        <button id="retryButton" class="btn btn-outline-danger mt-3">
+            <i class="fas fa-redo me-2"></i>Try Again
+        </button>
+    </div>
+
+    <!-- Recommendations Results -->
+    <div id="recommendationsContainer" style="display: none;">
+        <!-- User Profile Summary -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm bg-light">
+                    <div class="card-body">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-user-cog text-primary me-2"></i>Recommendations based on your profile:
+                        </h6>
+                        <div id="profileSummary" class="d-flex flex-wrap gap-3">
+                            <!-- Profile details will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Meals -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <h4 class="fw-bold mb-4">
+                    <i class="fas fa-utensils text-success me-2"></i>Recommended Meals
+                </h4>
+            </div>
+            <div id="mealsContainer" class="row g-4">
+                <!-- Meals will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Health Tips -->
+        <div class="row">
+            <div class="col-12">
+                <h4 class="fw-bold mb-4">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>Health Tips for You
+                </h4>
+            </div>
+            <div id="tipsContainer" class="row g-4">
+                <!-- Tips will be inserted here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Meal Rating Modal -->
+<div class="modal fade" id="ratingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rate This Meal</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <h6 id="ratingMealName" class="fw-bold">Meal Name</h6>
+                    <p class="text-muted">How would you rate this meal?</p>
+                </div>
+                
+                <div class="text-center mb-4">
+                    <div class="rating-stars" id="ratingStars">
+                        <i class="fas fa-star" data-rating="1"></i>
+                        <i class="fas fa-star" data-rating="2"></i>
+                        <i class="fas fa-star" data-rating="3"></i>
+                        <i class="fas fa-star" data-rating="4"></i>
+                        <i class="fas fa-star" data-rating="5"></i>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="ratingNotes" class="form-label">Notes (optional)</label>
+                    <textarea class="form-control" id="ratingNotes" rows="3" placeholder="Share your thoughts about this meal..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitRating">Submit Rating</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let currentRatingMealId = null;
+        let selectedRating = 0;
+
+        // Get recommendations
+        document.getElementById('getRecommendations').addEventListener('click', function() {
+            getRecommendations();
+        });
+
+        // Retry button
+        document.getElementById('retryButton').addEventListener('click', function() {
+            getRecommendations();
+        });
+
+        async function getRecommendations() {
+            // Show loading state
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('errorState').style.display = 'none';
+            document.getElementById('recommendationsContainer').style.display = 'none';
+            document.getElementById('getRecommendations').style.display = 'none';
+
+            // Animate loading steps
+            setTimeout(() => {
+                document.getElementById('step1').querySelector('i').className = 'fas fa-check text-success me-2';
+                document.getElementById('step2').querySelector('i').className = 'fas fa-spinner fa-spin text-primary me-2';
+            }, 500);
+
+            setTimeout(() => {
+                document.getElementById('step2').querySelector('i').className = 'fas fa-check text-success me-2';
+                document.getElementById('step3').querySelector('i').className = 'fas fa-spinner fa-spin text-primary me-2';
+            }, 1000);
+
+            try {
+                const response = await fetch('/api/recommend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('step3').querySelector('i').className = 'fas fa-check text-success me-2';
+                    
+                    setTimeout(() => {
+                        displayRecommendations(data);
+                        document.getElementById('loadingState').style.display = 'none';
+                        document.getElementById('recommendationsContainer').style.display = 'block';
+                    }, 500);
+                } else {
+                    throw new Error(data.error || 'Failed to get recommendations');
+                }
+            } catch (error) {
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('errorState').style.display = 'block';
+                document.getElementById('errorMessage').textContent = error.message;
+                document.getElementById('getRecommendations').style.display = 'inline-block';
+            }
+        }
+
+        function displayRecommendations(data) {
+            // Display profile summary
+            displayProfileSummary(data.user_profile);
+            
+            // Display meals
+            displayMeals(data.meals);
+            
+            // Display health tips
+            displayHealthTips(data.health_tips);
+        }
+
+        function displayProfileSummary(profile) {
+            const container = document.getElementById('profileSummary');
+            container.innerHTML = `
+                <span class="badge bg-primary">${profile.age_group.charAt(0).toUpperCase() + profile.age_group.slice(1)}</span>
+                <span class="badge bg-success">${profile.weight_category.charAt(0).toUpperCase() + profile.weight_category.slice(1)} Weight</span>
+                <span class="badge bg-info">${profile.activity_level.charAt(0).toUpperCase() + profile.activity_level.slice(1)} Activity</span>
+            `;
+        }
+
+        function displayMeals(meals) {
+            const container = document.getElementById('mealsContainer');
+            container.innerHTML = '';
+
+            meals.forEach((meal, index) => {
+                const mealCard = createMealCard(meal, index);
+                container.appendChild(mealCard);
+            });
+        }
+
+        function createMealCard(meal, index) {
+            const col = document.createElement('div');
+            col.className = 'col-lg-4 col-md-6';
+            
+            const affiliateLinksHtml = meal.affiliate_links.map(link => 
+                `<a href="${link.url}" class="btn btn-sm btn-outline-primary me-1 mb-1" target="_blank" rel="noopener">
+                    <i class="fas fa-shopping-cart me-1"></i>${link.ingredient}
+                </a>`
+            ).join('');
+
+            col.innerHTML = `
+                <div class="card h-100 border-0 shadow-sm meal-card" style="animation-delay: ${index * 0.1}s">
+                    <div class="meal-image-container">
+                        <img src="${meal.image_url}" alt="${meal.name}" class="card-img-top meal-image">
+                        <div class="meal-badges">
+                            <span class="badge bg-primary">${meal.cuisine_type}</span>
+                            <span class="badge bg-success">${meal.difficulty}</span>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold">${meal.name}</h5>
+                        <p class="card-text text-muted">${meal.description}</p>
+                        
+                        <!-- Nutrition Info -->
+                        <div class="nutrition-info mb-3">
+                            <div class="row text-center">
+                                <div class="col-3">
+                                    <div class="nutrition-item">
+                                        <i class="fas fa-fire text-danger"></i>
+                                        <div class="fw-bold">${meal.calories}</div>
+                                        <small class="text-muted">cal</small>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="nutrition-item">
+                                        <i class="fas fa-dumbbell text-primary"></i>
+                                        <div class="fw-bold">${meal.protein || 0}g</div>
+                                        <small class="text-muted">protein</small>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="nutrition-item">
+                                        <i class="fas fa-bread-slice text-warning"></i>
+                                        <div class="fw-bold">${meal.carbs || 0}g</div>
+                                        <small class="text-muted">carbs</small>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="nutrition-item">
+                                        <i class="fas fa-clock text-info"></i>
+                                        <div class="fw-bold">${meal.prep_time || 0}</div>
+                                        <small class="text-muted">min</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ingredients -->
+                        <div class="mb-3">
+                            <h6 class="fw-bold">
+                                <i class="fas fa-list-ul text-success me-2"></i>Ingredients:
+                            </h6>
+                            <div class="ingredients-list">
+                                ${meal.ingredients.map(ingredient => 
+                                    `<span class="badge bg-light text-dark me-1 mb-1">${ingredient}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Instructions -->
+                        ${meal.instructions ? `
+                            <div class="mb-3">
+                                <h6 class="fw-bold">
+                                    <i class="fas fa-tasks text-info me-2"></i>Instructions:
+                                </h6>
+                                <p class="small text-muted">${meal.instructions}</p>
+                            </div>
+                        ` : ''}
+
+                        <!-- Shopping Links -->
+                        ${meal.affiliate_links.length > 0 ? `
+                            <div class="mb-3">
+                                <h6 class="fw-bold small">
+                                    <i class="fas fa-shopping-basket text-primary me-2"></i>Shop Ingredients:
+                                </h6>
+                                <div class="affiliate-links">
+                                    ${affiliateLinksHtml}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- Action Buttons -->
+                        <div class="mt-auto">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary flex-grow-1 rate-meal-btn" 
+                                        data-meal-id="${meal.id}" data-meal-name="${meal.name}">
+                                    <i class="fas fa-star me-2"></i>Rate Meal
+                                </button>
+                                <button class="btn btn-primary save-meal-btn" title="Save for later">
+                                    <i class="fas fa-bookmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add event listeners
+            const rateMealBtn = col.querySelector('.rate-meal-btn');
+            rateMealBtn.addEventListener('click', function() {
+                currentRatingMealId = this.dataset.mealId;
+                document.getElementById('ratingMealName').textContent = this.dataset.mealName;
+                const ratingModal = new bootstrap.Modal(document.getElementById('ratingModal'));
+                ratingModal.show();
+            });
+
+            const saveMealBtn = col.querySelector('.save-meal-btn');
+            saveMealBtn.addEventListener('click', function() {
+                this.classList.toggle('btn-primary');
+                this.classList.toggle('btn-success');
+                const icon = this.querySelector('i');
+                if (this.classList.contains('btn-success')) {
+                    icon.className = 'fas fa-check';
+                    this.title = 'Saved!';
+                } else {
+                    icon.className = 'fas fa-bookmark';
+                    this.title = 'Save for later';
+                }
+            });
+
+            return col;
+        }
+
+        function displayHealthTips(tips) {
+            const container = document.getElementById('tipsContainer');
+            container.innerHTML = '';
+
+            tips.forEach((tip, index) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6';
+                
+                col.innerHTML = `
+                    <div class="card border-0 shadow-sm h-100 tip-card" style="animation-delay: ${index * 0.1}s">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start">
+                                <div class="tip-icon me-3">
+                                    <i class="fas fa-lightbulb text-warning"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-2">${tip.title}</h6>
+                                    <p class="text-muted mb-0">${tip.content}</p>
+                                    <span class="badge bg-light text-dark mt-2">${tip.category}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(col);
+            });
+        }
+
+        // Rating modal functionality
+        document.querySelectorAll('#ratingStars i').forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.dataset.rating);
+                updateStarDisplay();
+            });
+
+            star.addEventListener('mouseenter', function() {
+                const rating = parseInt(this.dataset.rating);
+                highlightStars(rating);
+            });
+        });
+
+        document.getElementById('ratingStars').addEventListener('mouseleave', function() {
+            updateStarDisplay();
+        });
+
+        function highlightStars(rating) {
+            document.querySelectorAll('#ratingStars i').forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('text-warning');
+                    star.classList.remove('text-muted');
+                } else {
+                    star.classList.add('text-muted');
+                    star.classList.remove('text-warning');
+                }
+            });
+        }
+
+        function updateStarDisplay() {
+            highlightStars(selectedRating);
+        }
+
+        // Submit rating
+        document.getElementById('submitRating').addEventListener('click', async function() {
+            if (selectedRating === 0) {
+                alert('Please select a rating');
+                return;
+            }
+
+            const notes = document.getElementById('ratingNotes').value;
+
+            try {
+                const response = await fetch('/api/rate_meal', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        meal_id: currentRatingMealId,
+                        rating: selectedRating,
+                        notes: notes
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Close modal and reset
+                    bootstrap.Modal.getInstance(document.getElementById('ratingModal')).hide();
+                    selectedRating = 0;
+                    document.getElementById('ratingNotes').value = '';
+                    updateStarDisplay();
+                    
+                    // Show success message
+                    const toast = document.createElement('div');
+                    toast.className = 'toast-notification success';
+                    toast.textContent = 'Rating submitted successfully!';
+                    document.body.appendChild(toast);
+                    
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 3000);
+                } else {
+                    throw new Error(data.error || 'Failed to submit rating');
+                }
+            } catch (error) {
+                alert('Error submitting rating: ' + error.message);
+            }
+        });
+
+        // Reset modal when closed
+        document.getElementById('ratingModal').addEventListener('hidden.bs.modal', function() {
+            selectedRating = 0;
+            document.getElementById('ratingNotes').value = '';
+            updateStarDisplay();
+        });
+    });
+</script>
+{% endblock %}
