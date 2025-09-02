@@ -3,4 +3,7 @@ gunicorn
 Werkzeug
 psycopg2-binary
 Flask-SQLAlchemy
+Flask-Dance[sqla]
+Flask-Login 
+python-dotenv
 
