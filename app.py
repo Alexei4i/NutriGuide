@@ -1,4 +1,14 @@
-from flask import Flask
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return render_template('landing.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 from flask_sqlalchemy import SQLAlchemy
 import os
 from werkzeug.middleware.proxy_fix import ProxyFix
