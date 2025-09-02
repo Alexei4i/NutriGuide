@@ -1,272 +1,175 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NutriGuide</title>
+  <style>
+    /* Reset & base styles */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; scroll-behavior: smooth; }
+    body {
+      background: linear-gradient(135deg, #56CCF2, #2F80ED);
+      color: #fff;
+      overflow-x: hidden;
+    }
 
-{% block content %}
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="container">
-        <div class="row align-items-center min-vh-100 py-5">
-            <div class="col-lg-6">
-                <div class="hero-content">
-                    <h1 class="display-4 fw-bold mb-4 slide-in-left">
-                        Discover Your Perfect
-                        <span class="text-primary">Meal Match</span>
-                    </h1>
-                    <p class="lead mb-4 slide-in-left delay-1">
-                        Get personalized meal recommendations based on your age, lifestyle, dietary preferences, and health goals. Start your journey to better nutrition today.
-                    </p>
-                    <div class="d-flex flex-wrap gap-3 mb-4 slide-in-left delay-2">
-                        <div class="feature-badge">
-                            <i class="fas fa-user-md text-primary me-2"></i>
-                            Health-focused
-                        </div>
-                        <div class="feature-badge">
-                            <i class="fas fa-chart-line text-success me-2"></i>
-                            Progress Tracking
-                        </div>
-                        <div class="feature-badge">
-                            <i class="fas fa-mobile-alt text-info me-2"></i>
-                            Mobile Friendly
-                        </div>
-                    </div>
-                    <div class="hero-actions slide-in-left delay-3">
-                        <a href="{{ url_for('replit_auth.login') }}" class="btn btn-primary btn-lg me-3 pulse-button">
-                            <i class="fas fa-rocket me-2"></i>Get Started
-                        </a>
-                        <a href="#features" class="btn btn-outline-primary btn-lg">
-                            <i class="fas fa-info-circle me-2"></i>Learn More
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="hero-image slide-in-right">
-                    <div class="image-container">
-                        <img src="https://pixabay.com/get/gcbd127530468d20c494682068c59bbc8920f003c6e7ae37b7eca2ee4effc2acbeaa3fe0253d02f956057dc92480b6cd6c7dae0b5f900133f29bf1abafd0bc050_1280.jpg" 
-                             alt="Healthy Food" class="img-fluid rounded-4 shadow-lg">
-                        <div class="floating-card">
-                            <i class="fas fa-heart text-danger"></i>
-                            <span>Personalized for You</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+    /* Navbar */
+    nav {
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 40px;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
 
-<!-- Features Section -->
-<section id="features" class="py-5 bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-5">
-                <h2 class="fw-bold">Why Choose NutriGuide?</h2>
-                <p class="text-muted">Intelligent features designed to help you eat better and live healthier</p>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-6 col-lg-3">
-                <div class="feature-card h-100 fade-in">
-                    <div class="feature-icon">
-                        <i class="fas fa-brain text-primary"></i>
-                    </div>
-                    <h5>Smart Recommendations</h5>
-                    <p class="text-muted">AI-powered meal suggestions based on your profile, preferences, and dietary restrictions.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="feature-card h-100 fade-in delay-1">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt text-success"></i>
-                    </div>
-                    <h5>Allergy Safe</h5>
-                    <p class="text-muted">Automatically filters out meals containing your allergens for safe dining experiences.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="feature-card h-100 fade-in delay-2">
-                    <div class="feature-icon">
-                        <i class="fas fa-chart-pie text-warning"></i>
-                    </div>
-                    <h5>Nutrition Tracking</h5>
-                    <p class="text-muted">Monitor calories, macronutrients, and progress towards your health goals.</p>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-3">
-                <div class="feature-card h-100 fade-in delay-3">
-                    <div class="feature-icon">
-                        <i class="fas fa-shopping-cart text-info"></i>
-                    </div>
-                    <h5>Shopping Links</h5>
-                    <p class="text-muted">Direct links to purchase ingredients from your favorite grocery stores.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+    nav .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
 
-<!-- How It Works -->
-<section class="py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-5">
-                <h2 class="fw-bold">How It Works</h2>
-                <p class="text-muted">Simple steps to get personalized meal recommendations</p>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="step-card text-center fade-in">
-                    <div class="step-number">1</div>
-                    <div class="step-icon mb-3">
-                        <i class="fas fa-user-plus text-primary" style="font-size: 2rem;"></i>
-                    </div>
-                    <h5>Create Your Profile</h5>
-                    <p class="text-muted">Tell us about your age, weight, dietary preferences, and health goals.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="step-card text-center fade-in delay-1">
-                    <div class="step-number">2</div>
-                    <div class="step-icon mb-3">
-                        <i class="fas fa-cogs text-success" style="font-size: 2rem;"></i>
-                    </div>
-                    <h5>Get Recommendations</h5>
-                    <p class="text-muted">Our AI analyzes your profile and suggests perfect meals for you.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="step-card text-center fade-in delay-2">
-                    <div class="step-number">3</div>
-                    <div class="step-icon mb-3">
-                        <i class="fas fa-utensils text-warning" style="font-size: 2rem;"></i>
-                    </div>
-                    <h5>Enjoy & Track</h5>
-                    <p class="text-muted">Cook, enjoy your meals, and track your progress over time.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
 
-<!-- Sample Meals Preview -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-5">
-                <h2 class="fw-bold">Sample Meal Ideas</h2>
-                <p class="text-muted">Get inspired by our diverse collection of healthy meals</p>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-6 col-lg-4">
-                <div class="meal-preview-card fade-in">
-                    <div class="meal-image">
-                        <img src="https://pixabay.com/get/g401b7c1af04f984df27ef8cb480248437c32c3bfb843bc94d4d58a52edb30971aede3b6d67b972a22470fe4e32844294a2a77a7eece381ab78de974b0b00904d_1280.jpg" 
-                             alt="Mediterranean Bowl" class="img-fluid">
-                        <div class="meal-overlay">
-                            <span class="badge bg-primary">Mediterranean</span>
-                        </div>
-                    </div>
-                    <div class="meal-info">
-                        <h6 class="fw-bold">Mediterranean Quinoa Bowl</h6>
-                        <div class="meal-stats">
-                            <span><i class="fas fa-fire text-danger me-1"></i>420 cal</span>
-                            <span><i class="fas fa-clock text-primary me-1"></i>25 min</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="meal-preview-card fade-in delay-1">
-                    <div class="meal-image">
-                        <img src="https://pixabay.com/get/g3d53fce673a1a6d4c14dabbff4c820f0c8f3d0c8371699ce4b07c9491232793fb709a381c90ff9b56a4aeaaeed35fe276fcda9259a90afbee5ca6c1948efcc1e_1280.jpg" 
-                             alt="Grilled Salmon" class="img-fluid">
-                        <div class="meal-overlay">
-                            <span class="badge bg-success">High Protein</span>
-                        </div>
-                    </div>
-                    <div class="meal-info">
-                        <h6 class="fw-bold">Grilled Salmon Dinner</h6>
-                        <div class="meal-stats">
-                            <span><i class="fas fa-fire text-danger me-1"></i>380 cal</span>
-                            <span><i class="fas fa-clock text-primary me-1"></i>30 min</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-                <div class="meal-preview-card fade-in delay-2">
-                    <div class="meal-image">
-                        <img src="https://pixabay.com/get/g25599105396f1fe7fa2214881a5f7f1292337665824131d9aac9d78aa9b710a2f380134abdf35a9539fd13e9a1d8d123704d81d9ca1989cc974ff8afb2436a22_1280.jpg" 
-                             alt="Avocado Toast" class="img-fluid">
-                        <div class="meal-overlay">
-                            <span class="badge bg-warning">Quick & Easy</span>
-                        </div>
-                    </div>
-                    <div class="meal-info">
-                        <h6 class="fw-bold">Avocado Toast & Eggs</h6>
-                        <div class="meal-stats">
-                            <span><i class="fas fa-fire text-danger me-1"></i>320 cal</span>
-                            <span><i class="fas fa-clock text-primary me-1"></i>15 min</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+    nav ul li a {
+      text-decoration: none;
+      color: #fff;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
 
-<!-- CTA Section -->
-<section class="py-5 bg-primary text-white">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h3 class="fw-bold mb-3">Ready to Transform Your Eating Habits?</h3>
-                <p class="mb-0 opacity-75">Join thousands of users who have improved their health with personalized meal recommendations.</p>
-            </div>
-            <div class="col-lg-4 text-lg-end">
-                <a href="{{ url_for('replit_auth.login') }}" class="btn btn-light btn-lg">
-                    <i class="fas fa-arrow-right me-2"></i>Start Your Journey
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
-{% endblock %}
+    nav ul li a:hover {
+      color: #FFD700;
+    }
 
-{% block extra_scripts %}
-<script>
-    // Add scroll animations
-    document.addEventListener('DOMContentLoaded', function() {
-        // Intersection Observer for fade-in animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+    /* Landing Container */
+    section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 100px 20px 50px;
+    }
 
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      animation: fadeIn 1.5s ease-in-out;
+    }
 
-        // Observe all fade-in elements
-        document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right').forEach(el => {
-            observer.observe(el);
-        });
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+    }
 
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-    });
-</script>
-{% endblock %}
+    .btn {
+      padding: 15px 30px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 50px;
+      background: #fff;
+      color: #2F80ED;
+      cursor: pointer;
+      transition: 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: #2F80ED;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    /* Floating background elements */
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      animation: float 8s infinite ease-in-out;
+      z-index: 0;
+    }
+
+    .circle:nth-child(1) { width: 120px; height: 120px; top: 15%; left: 10%; }
+    .circle:nth-child(2) { width: 200px; height: 200px; bottom: 10%; right: 15%; animation-delay: 2s; }
+    .circle:nth-child(3) { width: 80px; height: 80px; top: 30%; right: 5%; animation-delay: 4s; }
+
+    /* Footer */
+    footer {
+      width: 100%;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      text-align: center;
+      font-size: 0.9rem;
+      backdrop-filter: blur(8px);
+      z-index: 100;
+    }
+
+    /* Animations */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating Background Circles -->
+  <div class="circle"></div>
+  <div class="circle"></div>
+  <div class="circle"></div>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="logo">NutriGuide</div>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Sections -->
+  <section id="home">
+    <h1>Welcome to NutriGuide 🥗</h1>
+    <p>Your personalized nutrition companion. Discover healthy meals, track your calories, and eat better every day!</p>
+    <a href="/dashboard" class="btn">Get Started</a>
+  </section>
+
+  <section id="features">
+    <h1>Features</h1>
+    <p>🍎 Personalized meal suggestions<br>📊 Nutrition tracking<br>💡 Smart recommendations for your goals</p>
+  </section>
+
+  <section id="about">
+    <h1>About Us</h1>
+    <p>NutriGuide is built to simplify healthy living. We make nutrition fun, accessible, and easy to track for everyone.</p>
+  </section>
+
+  <section id="contact">
+    <h1>Contact</h1>
+    <p>Email us at: <strong>support@nutriguide.com</strong></p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    © 2025 NutriGuide. All rights reserved.
+  </footer>
+</body>
+</html>
+
+no
